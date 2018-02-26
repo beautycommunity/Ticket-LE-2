@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="BeautyTicket-Live" Class="Data_UserDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=192.168.10.202;Initial Catalog=BeautyTicket-Live;Persist Security Info=True;User ID=sa" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="BeautyTicket_LiveConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.MAS_DEP" Member="MAS_DEPs">
+    <Type Name="MAS_DEP">
+      <Column Name="DP_ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DPCODE" Type="System.String" DbType="NVarChar(10) NOT NULL" CanBeNull="false" />
+      <Column Name="DEPARTMENT" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="CFLAG" Type="System.Char" DbType="NChar(1)" CanBeNull="true" />
+      <Column Name="CREATECODE" Type="System.String" DbType="NVarChar(20)" CanBeNull="true" />
+      <Column Name="CREATEDATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MAS_USER" Member="MAS_USERs">
+    <Type Name="MAS_USER">
+      <Column Name="US_ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="STCODE" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="PASSWORD" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="FNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="LNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NICKNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="MAIL" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="SEX" Type="System.Char" DbType="Char(1)" CanBeNull="true" />
+      <Column Name="D_ID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="A_ID" Type="System.Byte" DbType="TinyInt NOT NULL" CanBeNull="false" />
+      <Column Name="CFLAG" Type="System.Byte" DbType="TinyInt NOT NULL" CanBeNull="false" />
+      <Column Name="CREATECODE" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="CREATEDATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MAS_USER_A" Member="MAS_USER_As">
+    <Type Name="MAS_USER_A">
+      <Column Name="US_ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ANAME" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="CFLAG" Type="System.String" DbType="NChar(10) NOT NULL" CanBeNull="false" />
+      <Column Name="createcode" Type="System.String" DbType="NVarChar(20)" CanBeNull="true" />
+      <Column Name="createdate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[VW_USER_FOR-LE]" Member="VW_USER_FOR_LEs">
+    <Type Name="VW_USER_FOR_LE">
+      <Column Name="US_ID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="STCODE" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NAME" Type="System.String" DbType="VarChar(101)" CanBeNull="true" />
+      <Column Name="NICKNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="MAIL" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="DPCODE" Type="System.String" DbType="NVarChar(10)" CanBeNull="true" />
+      <Column Name="A_ID" Type="System.Byte" DbType="TinyInt NOT NULL" CanBeNull="false" />
+      <Column Name="ANAME" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>

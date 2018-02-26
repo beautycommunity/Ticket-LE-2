@@ -1,0 +1,35 @@
+﻿@model Ticket_LE.Models.Dp_List
+@{
+    ViewBag.Title = "updatedid";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+
+@using (Html.BeginForm("updatedid", "Login", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+
+    <h4>กรุณาเลือกแผนกของท่าน</h4>
+
+    <br />
+
+    @Html.DropDownListFor(m => m.JT_ID, Model.JT_LIST, "Please select", new { @id = "job", @class = "form-control" })
+    @Html.ValidationMessageFor(m => m.JT_ID, "", new { @class = "text-danger" })
+
+    <br />
+    <br />
+    @Html.HiddenFor(m => m.STCODE)
+
+    <div>
+        <input type="submit" value="บันทึก" class="btn btn-primary form-control" />
+    </div>
+
+
+}
+
+
+@section scripts{
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+}

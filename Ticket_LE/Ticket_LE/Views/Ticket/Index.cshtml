@@ -1,0 +1,203 @@
+﻿@using Ticket_LE.Models
+@using PagedList
+@using PagedList.Mvc
+@*@model Ticket_LE.Models.TicketModels*@
+@model IEnumerable<Ticket_LE.Models.Ticket>
+
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    IPagedList list = Model as IPagedList;
+    //IPagedList list = Model as IPagedList;
+}
+
+
+<div class="row">
+
+    <div class="col-md-6">
+        <h2>Home Ticket LE</h2>
+
+        <a href="@Url.Action("CreateTicket","Ticket")" class="btn btn-primary" align="left"><span class="glyphicon glyphicon-plus"></span>เปิดงานใหม่</a>
+        @if (ViewBag.A_ID <= 2)
+        {
+            <a href="@Url.Action("ApproveTicket","Ticket")" class="btn btn-default" align="left">อนุมัติรายงาน</a>
+        }
+        @if (ViewBag.A_ID <= 2 && ViewBag.DP == 10)
+        {
+            <a href="@Url.Action("Manage","Ticket")" class="btn btn-default" align="left">จัดการสิทธ์</a>
+        }
+
+
+    </div>
+    <br />
+    <div class="col-md-6" align="right">
+
+        <section id="searchText">
+            <div class="well">
+                @using (Html.BeginForm("Index", "Ticket"))
+                {
+                    @*@Html.DropDownList("NName", "ผู้รับงาน")*@
+
+                    @Html.DropDownList("Type", "ประเภทงาน")
+
+                    <input type="search" name="seach" value="@ViewBag.WordSearch" />
+                    <button type="submit" class="btn btn-default">ค้นหา <span class="glyphicon glyphicon-search"></span></button>
+                }
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+<hr />
+
+<style>
+    hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+    }
+
+    .rating-stars {
+        font-size: 1.5em;
+        color: #E3E3E3;
+        margin-bottom: .5em;
+    }
+
+        .rating-stars .active {
+            color: #737373;
+        }
+</style>
+<link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+<script type="text/javascript">
+    function myFunction() {
+        var melement = document.getElementById('group');
+        melement.style.color = "lightblue";
+
+    }
+</script>
+
+@*@Html.PagedListPager(list, n => Url.Action("Home", new { page = n, seach = ViewBag.WordSearch, NName = ViewBag.NNameSearch, type = ViewBag.typeSearch }))*@
+
+@Html.PagedListPager(list, n => Url.Action("Index", new { page = n, seach = ViewBag.WordSearch, type = ViewBag.typeSearch }))
+
+@foreach (var _item in Model)
+{
+
+    <div id="group" class="well well-lg">
+
+        <div class="row">
+
+            <div class="col-md-4">
+                @Html.LabelFor(m => _item.TICKETNO, new { @class = "col-md control-label" })
+                @Html.DisplayFor(m => _item.TICKETNO, new { @class = "form-control" })
+            </div>
+
+            <div class="col-md-3">
+                @Html.LabelFor(m => _item.SSNAME, new { @class = "col-md control-label" })
+
+                @switch (_item.SSID)
+                {
+                    case 1:
+                        <span style="color:#0099ff">@Html.DisplayFor(m => _item.SSNAME, new { @class = "form-control" })</span>
+                        break;
+                    case 2:
+                        <span style="color:#bd0f15">@Html.DisplayFor(m => _item.SSNAME, new { @class = "form-control" })</span>
+                        break;
+                    case 3:
+                        <span style="color:#00cc00">@Html.DisplayFor(m => _item.SSNAME, new { @class = "form-control" })</span>
+                        break;
+                    default:
+                        @Html.DisplayFor(m => _item.SSNAME, new { @class = "form-control" })
+                        break;
+                }
+            </div>
+
+            <div class="col-md-2">
+
+            </div>
+
+        </div>
+        <hr />
+        <section id=m.TICKETNO>
+
+            <div class="row">
+
+                <div class="col-md-4" style="word-wrap:break-word;">
+                    @Html.LabelFor(m => _item.DETAIL, new { @class = "col-md control-label" })
+                    <br />
+                    @Html.DisplayFor(m => _item.DETAIL, new { @class = "form-control" })
+                </div>
+
+                <div class="col-md-2">
+
+                    @*@Html.LabelFor(m => _item.JT_NAME, new { @class = "col-md control-label" })
+                        <br />
+                        @Html.DisplayFor(m => _item.JT_NAME, new { @class = "form-control" })*@
+
+                </div>
+
+                <div class="col-md-1">
+
+                    @Html.LabelFor(m => _item.CRE_NICKNAME, new { @class = "col-md control-label" })
+                    <br />
+                    @Html.DisplayFor(m => _item.CRE_NICKNAME, new { @class = "form-control" })
+                    @Html.DisplayFor(m => _item.DEP, new { @class = "form-control" })
+                </div>
+
+
+                <div class="col-md-1">
+
+                    @Html.LabelFor(m => _item.CREATEDATE, new { @class = "col-md control-label" })
+                    <br />
+                    @Html.DisplayFor(m => _item.CREATEDATE, new { @class = "form-control" })
+
+                </div>
+                <div class="col-md-1">
+
+                    @Html.LabelFor(m => _item.CREATETIME, new { @class = "col-md control-label" })
+                    <br />
+                    @Html.DisplayFor(m => _item.CREATETIME, new { @class = "form-control" })
+
+                </div>
+
+
+                <div class="col-md-1">
+                    <br />
+
+                    <input type="button" value="รายละเอียด" id=_item.TICKETNO class="btn btn-primary" onclick="location.href='@Url.Action("TicketDetail", "Ticket",new { TicketId = _item.ID, Url = "Index" })'" />
+                </div>
+                <div class="col-md-1">
+                    @*<br />
+                        @if (_item.SS_ID < 2 && ViewBag.UserDepId == 13)
+                        {
+                            <input type="button" value="รับงาน" id=_item.TICKETNO class="btn btn-success" onclick="location.href='@Url.Action("TicketReceive", "Ticket",new { TicketId = _item.TK_ID })'" />
+                        }*@
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+}
+@Html.PagedListPager(list, n => Url.Action("Home", new { page = n, seach = ViewBag.WordSearch }))
+@*@Html.PagedListPager(list, n => Url.Action("Home", new { page = n }))*@
+@*@Html.PagedListPager(list, n => Url.Action("Home", new { page = n, seach = ViewBag.WordSearch }))*@
+@*}
+    else
+    {
+    <div class="row">
+        <div class="col-lg-12">
+            <h4>ไม่พบ ข้อมูลการแจ้ง Ticket IT</h4>
+        </div>
+    </div>
+
+    }*@
+
+
+
+

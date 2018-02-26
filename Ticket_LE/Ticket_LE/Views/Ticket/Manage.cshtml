@@ -1,0 +1,132 @@
+﻿@model Ticket_LE.Models.UserViewModels
+
+<link rel="stylesheet" href="~/Content/MyLoad.css">
+
+@{
+    ViewBag.Title = "หมายเลขติดต่อภายใน";
+}
+
+
+<style>
+    #overlay {
+        position: fixed; /* Sit on top of the page content */
+        display: none; /* Hidden by default */
+        width: 100%; /* Full width (cover the whole page) */
+        height: 100%; /* Full height (cover the whole page) */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+        z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+        cursor: pointer; /* Add a pointer on hover */
+    }
+</style>
+
+
+
+<h2>จัดการสิทธิ์</h2>
+
+<a href="@Url.Action("Index")" class="btn btn-default">กลับหน้าหลัก</a>
+<br />
+<br />
+
+<div class="well">
+    <div class="row">
+        <div class="col-lg-3">
+            @Html.Label("ค้นหา")
+            @Html.TextBox("srch", Model.sh)
+            @Html.Hidden("hidden", Model.Page)
+        </div>
+
+        <div class="col-lg-7">
+
+
+        </div>
+
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<div id="output"></div>
+
+<div id="overlay" onclick="off()">
+    <br /><br /><br /><br /><br /><br /><br />
+    <br /><br /><br /><br /><br /><br /><br />
+
+    <div class="cssload-wrap">
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+        <div class="cssload-circle"></div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        $(document).ready(updateReport);
+        $("#srch").change(updateReport);
+        function updateReport()
+        {
+            on();
+            var url =  "@Url.Action("Manage_Partial")";
+            var data = { sh: $("#srch").val(), page: $("#hidden").val() };
+              $.post(url, data).then(function (res) {
+                  $("#output").html(res);
+                  off()
+            });
+        }
+
+        function on() {
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function off() {
+            document.getElementById("overlay").style.display = "none";
+        }
+
+        $("#btnAdd").click(
+            function () {
+                $("#myModal").modal("show");
+            }
+        );
+    </script>
+
+    @if (TempData["error"] != null)
+    {
+        <script>
+            $("#myModal").modal("show");
+        </script>
+    }
+}

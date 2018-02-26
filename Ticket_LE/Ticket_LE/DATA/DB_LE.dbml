@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="LETicket" Class="DB_LEDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=192.168.10.202;Initial Catalog=LETicket;Persist Security Info=True;User ID=sa" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="LETicketConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.MAS_DOC" Member="MAS_DOCs">
+    <Type Name="MAS_DOC">
+      <Column Name="DOC_ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DOC_NAME" Type="System.String" DbType="VarChar(100)" CanBeNull="true" />
+      <Column Name="TYPE" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+      <Column Name="FLAG" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.TASK_SUB" Member="TASK_SUBs">
+    <Type Name="TASK_SUB">
+      <Column Name="LE_ID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="DOC_ID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="DETEIL_SUB" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MAS_SS" Member="MAS_SSes">
+    <Type Name="MAS_SS">
+      <Column Name="SS_ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="SS_NAME" Type="System.String" DbType="VarChar(30)" CanBeNull="true" />
+      <Column Name="FLAG" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.TASK_MAIN" Member="TASK_MAINs">
+    <Type Name="TASK_MAIN">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="TICKETNO" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Column Name="DETEIL" Type="System.String" DbType="VarChar(100)" CanBeNull="true" />
+      <Column Name="WORKDATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="STCODE" Type="System.String" DbType="VarChar(5)" CanBeNull="true" />
+      <Column Name="STATUS" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+      <Column Name="FLAG" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+      <Column Name="HDEP_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="HDEP_DATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="RECEIVE_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="RECEIVE_DATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CLOSE_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="CLOSE_DATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="APPROVE_ID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.VW_TICKET" Member="VW_TICKETs">
+    <Type Name="VW_TICKET">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="TICKETNO" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Column Name="DETEIL" Type="System.String" DbType="VarChar(100)" CanBeNull="true" />
+      <Column Name="WORKDATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="STCODE" Type="System.String" DbType="VarChar(5)" CanBeNull="true" />
+      <Column Name="FNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="LNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="NICKNAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="DPCODE" Type="System.String" DbType="NVarChar(10)" CanBeNull="true" />
+      <Column Name="SS_NAME" Type="System.String" DbType="VarChar(30)" CanBeNull="true" />
+      <Column Name="STATUS" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+      <Column Name="FLAG" Type="System.String" DbType="VarChar(1)" CanBeNull="true" />
+      <Column Name="APPROVE_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="HDEP_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="HDEP_DATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="RECEIVE_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="RECEIVE_DATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CLOSE_NAME" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="CLOSE_DATE" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="APPROVE_ID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+    </Type>
+  </Table>
+</Database>

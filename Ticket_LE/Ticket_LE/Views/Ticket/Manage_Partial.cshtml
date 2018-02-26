@@ -1,0 +1,121 @@
+﻿@using PagedList
+@using PagedList.Mvc
+
+@*@using MVC_Ticket.Models
+    @model MVC_Ticket.Models.ListUsers*@
+
+@using Ticket_LE.Models
+@model IEnumerable<Ticket_LE.Models.USER_LOGIN>
+
+@{
+
+    IPagedList list = Model as IPagedList;
+
+}
+
+@Styles.Render("~/Content/css")
+@Scripts.Render("~/bundles/modernizr")
+
+@Html.PagedListPager(list, n => Url.Action("Manage", new { page = n, sh = ViewBag.sh }))
+
+<table class="table table-bordered table-striped table-responsive">
+    <tr>
+        <th>
+            @Html.DisplayName("รหัสพนักงาน")
+        </th>
+        <th>
+            @Html.DisplayName("ชื่อ-นามสกุล")
+        </th>
+        <th>
+            @Html.DisplayName("แผนก")
+        </th>
+        <th>
+            @Html.DisplayName("ระดับการใช้งาน")
+        </th>
+        <th>
+            @Html.DisplayName("แก้ไขข้อมูล")
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.STCODE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FULLNAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DEP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.A_NAME)
+            </td>
+            <td align="">
+                <input type="button" value="แก้ไข" id="btn_@item.ID" class="btn btn-warning" />
+
+                <script>
+                        $("#btn_@item.ID").click(
+                            function () {
+                                $("#Modal_@item.ID").modal("show");
+                            }
+                        );
+                </script>
+
+                @using (Html.BeginForm("Edit", "Ticket", new { Id = item.ID, STCODE = item.STCODE }))
+                {
+                    if (ViewBag.UserDepId == null)
+                    {
+                        <div id="Modal_@item.ID" align="left" class="modal fade" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button"
+                                                class="close"
+                                                data-dismiss="modal"
+                                                aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h4 class="modal-title"> @item.STCODE @item.FULLNAME  </h4>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <p>
+                                            <div class="row form-group">
+                                                    <div class="col-sm-3">
+                                                        @Html.DisplayName("ระดับการใช้งาน")
+                                                        <br />
+                                                        @Html.Label("แก้ไข")
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        @Html.TextBoxFor(modelItem => item.A_NAME, new { disabled = "disabled", @readonly = "readonly" })
+                                                        <br />
+                                                        @Html.DropDownList("Dep", "เลือกฝ่าย")
+                                                    </div>
+                                                </div>
+                                        </p>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit"
+                                                class="btn btn-success">
+                                            <b>บันทึก</b>
+                                        </button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+                    }
+                }
+            </td>
+        </tr>
+    }
+
+</table>
+@Html.PagedListPager(list, n => Url.Action("Manage_Partial", new { page = n }))
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+
+

@@ -1,0 +1,299 @@
+﻿@using Ticket_LE.Models
+@model Ticket_LE.Models.TicketModels
+
+@*@model IEnumerable<MVC_Ticket.Models.TicketDetail>*@
+
+
+@{
+    ViewBag.Title = "Ticket Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+}
+
+<style>
+    #form_rating {
+        width: 250px;
+        margin: 10px auto;
+        padding: 10px;
+        border: 1px solid #d9d9d9;
+    }
+
+        #form_rating p,
+        #form_rating input[type="submit"] {
+            text-align: center;
+            font-size: 20px;
+        }
+
+    /*#wrapper form input[type="submit"] {
+        border: 1px solid #d9d9d9;
+        background-color: #efefef;
+    }*/
+
+    input[type="radio"] {
+        display: none;
+    }
+
+    .clasificacion {
+        direction: rtl;
+        unicode-bidi: bidi-override;
+    }
+
+    label:hover,
+    label:hover ~ label {
+        color: orange;
+    }
+
+    input[type="radio"]:checked ~ label {
+        color: orange;
+    }
+
+    .rating-stars {
+        font-size: 1.5em;
+        color: #E3E3E3;
+        margin-bottom: .5em;
+    }
+
+        .rating-stars .active {
+            color: #737373;
+        }
+</style>
+<link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+
+<style>
+</style>
+
+<br />
+@*@if ()
+    {
+
+    }*@
+@if (ViewBag.Back == "App")
+{
+    <a href="@Url.Action("ApproveTicket")" class="btn btn-default">กลับหน้าหลัก</a>
+}
+else if (ViewBag.Back == "Index")
+{
+    <a href="@Url.Action("Index")" class="btn btn-default">กลับหน้าหลัก</a>
+}
+else
+{
+    <a href="@Url.Action("Index")" class="btn btn-default">กลับหน้าหลัก</a>
+}
+
+<br />
+<hr />
+
+<div id="group" class="well well-lg">
+
+    <div class="row">
+
+        <div class="col-md-5">
+            @Html.LabelFor(m => Model.TicketSub.TICKETNO, new { @class = "col-md control-label" })
+            @Html.DisplayFor(m => Model.TicketSub.TICKETNO, new { @class = "form-control" })
+            <br />
+            @Html.LabelFor(m => Model.TicketSub.NAME_OPEN, new { @class = "col-md control-label" })
+            @Html.DisplayFor(m => Model.TicketSub.NAME_OPEN, new { @class = "form-control" })
+            @Html.DisplayFor(m => Model.TicketSub.DATE_OPEN, new { @class = "form-control" })
+            <br />
+            @Html.LabelFor(m => Model.TicketSub.NAME_HDEP, new { @class = "col-md control-label" })
+            @Html.DisplayFor(m => Model.TicketSub.NAME_HDEP, new { @class = "form-control" })
+            @Html.DisplayFor(m => Model.TicketSub.DATE_HDEP, new { @class = "form-control" })
+        </div>
+
+        <div class="col-md-5">
+            @Html.LabelFor(m => Model.TicketSub.SSNAME, new { @class = "col-md control-label" })
+
+            @switch (Model.TicketSub.SSID)
+            {
+                case 1:
+                    <span style="color:#0099ff">@Html.DisplayFor(m => Model.TicketSub.SSNAME, new { @class = "form-control" })</span>
+                    break;
+                case 2:
+                    <span style="color:#bd0f15">@Html.DisplayFor(m => Model.TicketSub.SSNAME, new { @class = "form-control" })</span>
+                    break;
+                case 3:
+                    <span style="color:#00cc00">@Html.DisplayFor(m => Model.TicketSub.SSNAME, new { @class = "form-control" })</span>
+                    break;
+                default:
+                    @Html.DisplayFor(m => Model.TicketSub.SSNAME, new { @class = "form-control" })
+                    break;
+            }
+
+            <br />
+            @Html.LabelFor(m => Model.TicketSub.NAME_RECEIVE, new { @class = "col-md control-label" })
+            @Html.DisplayFor(m => Model.TicketSub.NAME_RECEIVE, new { @class = "form-control" })
+            @Html.DisplayFor(m => Model.TicketSub.DATE_RECEIVE, new { @class = "form-control" })
+            <br />
+            @Html.LabelFor(m => Model.TicketSub.NAME_CLOSE, new { @class = "col-md control-label" })
+            @Html.DisplayFor(m => Model.TicketSub.NAME_CLOSE, new { @class = "form-control" })
+            @Html.DisplayFor(m => Model.TicketSub.DATE_CLOSE, new { @class = "form-control" })        
+        </div>
+
+        <div class="col-md-2" style="color:red">
+            @*<strong> **หากสถานะเปลี่ยนเป็น "ดำเนินการ" จะไม่สามารถยกเลิกได้ ต้องแจ้ง LE  </strong>*@
+        </div>
+
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            @*@Html.LabelFor(m => Model.Deteil[0].Doc, new { @class = "col-md control-label" })*@
+        </div>
+        <div class="col-md-3">
+        </div>
+
+        <div class="col-md-3">
+
+        </div>
+        <div class="col-md-3">
+
+        </div>
+    </div>
+    @Html.LabelFor(m => Model.Detail[0].Doc, new { @class = "col-md control-label" })
+
+    @for (int i = 0; i < Model.Detail.Count(); i++)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                -
+                @Html.DisplayFor(m => Model.Detail[i].Doc, new { @class = "form-control", @readonly = "readonly" })
+                @if (Model.Detail[i].Type == "2")
+                {
+                    @Html.TextBoxFor(m => Model.Detail[i].NAME, new { @class = "form-control", @readonly = "readonly" })
+                }
+            </div>
+            <div class="col-md-6">
+
+            </div>
+        </div>
+
+    }
+    <hr />
+    <section id=m.TICKETNO>
+
+        <div class="row">
+
+            <div class="col-md-4" style="word-wrap:break-word;">
+                @Html.LabelFor(m => Model.TicketSub.DETAIL, new { @class = "col-md control-label" })
+                <br />
+                @Html.DisplayFor(m => Model.TicketSub.DETAIL, new { @class = "form-control" })
+
+            </div>
+
+            <div class="col-md-2">
+
+
+
+            </div>
+
+            <div class="col-md-1">
+
+
+
+            </div>
+
+
+            <div class="col-md-1">
+
+                @Html.LabelFor(m => Model.TicketSub.CREATEDATE, new { @class = "col-md control-label" })
+                <br />
+                @Html.DisplayFor(m => Model.TicketSub.CREATEDATE, new { @class = "form-control" })
+
+            </div>
+            <div class="col-md-1">
+
+                @Html.LabelFor(m => Model.TicketSub.CREATETIME, new { @class = "col-md control-label" })
+                <br />
+                @Html.DisplayFor(m => Model.TicketSub.CREATETIME, new { @class = "form-control" })
+
+            </div>
+
+
+            <div class="col-md-1">
+                <br />
+
+                @*<input type="button" value="รายละเอียด" id=_item.TICKETNO class="btn btn-primary" onclick="location.href='@Url.Action("TicketDetail", "Ticket",new { TicketId = _item.ID })'" />*@
+            </div>
+            <div class="col-md-1">
+                @if (ViewBag.DP == 10)
+                {
+                    if (Model.TicketSub.SSID == 1)
+                    {
+                        if (Model.TicketSub.APP_ID != 1)
+                        {
+                            <a href="@Url.Action("TicketReceive", "Ticket", new { Id = ViewBag.TicNo })"><input onclick="return confirm('Are you sure?')" type="button" value="รับงาน" class="btn btn-success" /></a>
+                        }
+                    }
+                    else if (Model.TicketSub.SSID == 2)
+                    {
+                        if (ViewBag.A_ID == 1)
+                        {
+                            <a href="@Url.Action("TicketClose", "Ticket", new { Id = ViewBag.TicNo })"><input onclick="return confirm('Are you sure?')" type="button" value="ปิดงาน" class="btn btn-success" /></a>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <section id="newComment">
+
+                    <div class="form-group">
+                    </div>
+
+                    <br />
+                    @if (ViewBag.A_ID <= 2)
+                    {
+                        if (Model.TicketSub.APP_ID == 1)
+                        {
+                            <a href="@Url.Action("Approve", "Ticket", new { Id = ViewBag.TicNo })"><input onclick="return confirm    ('ต้องการอนุมัติหรือไม่?')" type="button" value="อนุมัติเอกสาร" class="btn btn-success" /></a>
+                            <a href="@Url.Action("Print", "Ticket", new { TicketId = ViewBag.TicNo })"><input onclick="return   confirm('ต้องการปริ้นหรือไม่?')" type="button" value="ปริ้นรายงาน" class="btn btn-primary" /></a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Print", "Ticket", new { TicketId = ViewBag.TicNo })"><input onclick="return   confirm('ต้องการปริ้นหรือไม่?')" type="button" value="ปริ้นรายงาน" class="btn btn-primary" /></a>
+                        }
+                    }
+                    else
+                    {
+                        if (Model.TicketSub.SSID == 1)
+                        {
+                            <a href="@Url.Action("Delete", "Ticket", new { Id = ViewBag.TicNo })"><input onclick="return confirm    ('ต้องการลบหรือไม่?')" type="button" value="ยกเลิกงาน" class="btn btn-danger" /></a>
+                            <a href="@Url.Action("Print", "Ticket", new { TicketId = ViewBag.TicNo })"><input onclick="return   confirm('ต้องการปริ้นหรือไม่?')" type="button" value="ปริ้นรายงาน" class="btn btn-primary" /></a>
+                        }
+                        else
+                        {
+                            if (ViewBag.DP == 10)
+                            {
+                                <a href="@Url.Action("Delete", "Ticket", new { Id = ViewBag.TicNo })"><input onclick="return confirm    ('ต้องการลบหรือไม่?')" type="button" value="ยกเลิกงาน" class="btn btn-danger" /></a>
+                                <a href="@Url.Action("Print", "Ticket", new { TicketId = ViewBag.TicNo })"><input onclick="return   confirm('ต้องการปริ้นหรือไม่?')" type="button" value="ปริ้นรายงาน" class="btn btn-primary" /></a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Print", "Ticket", new { TicketId = ViewBag.TicNo })"><input onclick="return   confirm('ต้องการปริ้นหรือไม่?')" type="button" value="ปริ้นรายงาน" class="btn btn-primary" /></a>
+                            }
+                        }
+                    }
+                </section>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+$(window).on('load', function () {
+    if (@TempData["Modal_CloseJob"] == 99){
+        $('#squarespaceModal').modal('show');
+    }
+});
+    </script>
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+}

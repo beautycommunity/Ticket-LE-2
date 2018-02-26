@@ -1,0 +1,76 @@
+﻿@using Ticket_LE.Models
+@model Ticket_LE.Models.TicketModels
+
+@{
+    ViewBag.Title = "CreateTicket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-md-9">
+        <h2>+ New Ticket LE</h2>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-md-8">
+
+        <section id="newTicket">
+
+            @using (Html.BeginForm("CreateTicket", "Ticket", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+            {
+
+                <hr />
+                @Html.Label("เอกสารที่ขอ", new { @class = "col-md control-label" })
+                <br />
+                <br />
+
+                for (int i = 0; i < Model.GetCheck.Count(); i+=2)
+                {
+                    <div class="form-group">
+                        @for (int j = i; j < 2+i; j++)
+                        {
+                            if (j != Model.GetCheck.Count())
+                            {
+                                <div class="col-md-6">
+                                    @Html.CheckBoxFor(m => Model.GetCheck[j].Checked )
+                                    @Html.DisplayFor(m => Model.GetCheck[j].Doc, new { @class = "form-control" })
+                                    @Html.HiddenFor(m => Model.GetCheck[j].ID)<br />
+                                    @if (Model.GetCheck[j].Type == "2")
+                                    {
+                                        @Html.TextBoxFor(m => Model.GetCheck[j].NAME, new { @class = "form-control" })
+                                    }                                 
+
+                                </div>
+
+                            }
+
+                        }
+                    </div>
+                }
+
+                @Html.LabelFor(m => Model.Add.Detail, new { @class = "col-md control-label" })
+                @Html.TextAreaFor(m => Model.Add.Detail, new { @class = "form-control custom-control", @rows = "3" })
+                <br />
+
+                <div class="form-group">
+                    <div class="col-md-10" >
+                        <input type="submit" value="บันทึก" class="btn btn-primary" />
+                        <a href="@Url.Action("Index")" class="btn btn-default">ยกเลิก</a>
+                    </div>
+                </div>
+
+                <br />
+            }
+
+        </section>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

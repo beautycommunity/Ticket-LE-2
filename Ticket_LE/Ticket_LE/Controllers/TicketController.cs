@@ -6,6 +6,9 @@ using System.Web.Mvc;
 using Ticket_LE.DATA;
 using Ticket_LE.Models;
 using PagedList;
+using RestSharp;
+using RestSharp.Deserializers;
+using Newtonsoft.Json;
 
 namespace Ticket_LE.Controllers
 {
@@ -17,93 +20,86 @@ namespace Ticket_LE.Controllers
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
-            IQueryable<VW_TICKET> View_Ticket;
-            //OnUser usr = new OnUser();
-            //usr = getUser(userOnline);
-            seach = seach.Trim();
-            //NName = NName.Trim();
-            type = type.Trim();
-            //TicketModels TicketList = new TicketModels();
+            Detail cc = new Detail();
+            //cc.Pos = Pos;
+            cc.seach = seach;
+            cc.type = type;
+            cc.STCODE = userOnline;
+
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/Ticketlist");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<Ticket> items = JsonConvert.DeserializeObject<List<Ticket>>(json);
+
+            // ------------------------------------------------------------------------------------
+
+            //IQueryable<VW_TICKET> View_Ticket;
+            //seach = seach.Trim();
+            //type = type.Trim();
 
             Data_UserDataContext Con = new Data_UserDataContext();
             DB_LEDataContext db = new DB_LEDataContext();
-
+            List<Ticket> lstTicket = new List<Ticket>();
             ViewBag.Type = new SelectList(db.MAS_SSes, "SS_ID", "SS_NAME");
 
             var User = (from xx in Con.MAS_USERs
                         where xx.STCODE == userOnline
                         select xx).FirstOrDefault();
 
+            if (User.D_ID != 10)
+            {
+                if(items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        Ticket ux = new Ticket();
+
+                        ux.ID = item.ID;
+                        ux.TICKETNO = item.TICKETNO;
+                        ux.DETAIL = item.DETAIL;
+                        ux.CREATEDATE = DateTime.Parse(item.CREATEDATE.ToString()).ToShortDateString();
+                        ux.CREATETIME = DateTime.Parse(item.CREATETIME.ToString()).ToLongTimeString();
+                        ux.CRE_NICKNAME = item.CRE_NICKNAME;
+                        ux.DEP = item.DEP;
+                        ux.SSID = item.SSID;
+                        ux.SSNAME = item.SSNAME;
+
+                        lstTicket.Add(ux);
+                    }
+                }
+            }
+            else
+            {
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        Ticket ux = new Ticket();
+
+                        ux.ID = item.ID;
+                        ux.TICKETNO = item.TICKETNO;
+                        ux.DETAIL = item.DETAIL;
+                        ux.CREATEDATE = DateTime.Parse(item.CREATEDATE.ToString()).ToShortDateString();
+                        ux.CREATETIME = DateTime.Parse(item.CREATETIME.ToString()).ToLongTimeString();
+                        ux.CRE_NICKNAME = item.CRE_NICKNAME;
+                        ux.DEP = item.DEP;
+                        ux.SSID = item.SSID;
+                        ux.SSNAME = item.SSNAME;
+
+                        lstTicket.Add(ux);
+                    }
+                }
+            }
+
             ViewBag.DP = User.D_ID;
             ViewBag.A_ID = User.A_ID;
-
-            List<Ticket> lstTicket = new List<Ticket>();
-
-            using (DB_LEDataContext Context = new DB_LEDataContext())
-            {
-                View_Ticket = Context.VW_TICKETs.Where(s => s.TICKETNO.Contains(seach) || s.DPCODE.Contains(seach) || s.NICKNAME.Contains(seach)).Where(s => s.FLAG == "1").OrderBy(s => s.STATUS);
-
-                if (type != "")
-                {
-                    View_Ticket = View_Ticket.Where(tik => tik.STATUS == type);
-                }
-
-                if (User.D_ID != 10)
-                {
-                    View_Ticket = View_Ticket.Where(s => s.STCODE == userOnline);
-
-                    foreach (var item in View_Ticket)
-                    {
-                        Ticket ux = new Ticket();
-
-                        ux.ID = item.ID;
-                        ux.TICKETNO = item.TICKETNO;
-                        ux.DETAIL = item.DETEIL;
-                        ux.CREATEDATE = DateTime.Parse(item.WORKDATE.ToString()).ToShortDateString();
-                        ux.CREATETIME = DateTime.Parse(item.WORKDATE.ToString()).ToLongTimeString();
-                        ux.CRE_NICKNAME = item.NICKNAME;
-                        ux.DEP = item.DPCODE;
-                        ux.SSID = Int32.Parse(item.STATUS);
-                        ux.SSNAME = item.SS_NAME;
-
-                        lstTicket.Add(ux);
-                    }
-                }
-                else
-                {
-                    if (User.A_ID == 3)
-                    {
-                        View_Ticket = View_Ticket.Where(s => s.STCODE == userOnline);
-                    }
-                    else
-                    {
-                        View_Ticket = View_Ticket.Where(s => s.APPROVE_ID >= 2);
-                    }
-
-                    foreach (var item in View_Ticket)
-                    {
-                        Ticket ux = new Ticket();
-
-                        ux.ID = item.ID;
-                        ux.TICKETNO = item.TICKETNO;
-                        ux.DETAIL = item.DETEIL;
-                        ux.CREATEDATE = DateTime.Parse(item.WORKDATE.ToString()).ToShortDateString();
-                        ux.CREATETIME = DateTime.Parse(item.WORKDATE.ToString()).ToLongTimeString();
-                        ux.CRE_NICKNAME = item.NICKNAME;
-                        ux.DEP = item.DPCODE;
-                        ux.SSID = Int32.Parse(item.STATUS);
-                        ux.SSNAME = item.SS_NAME;
-
-                        lstTicket.Add(ux);
-                    }
-                }
-                
-               
-                //TicketList.TicketDetail = lstTicket;
-            }
-            //return View(lstTicket);
-            //return View(lstTicket.ToPagedList(page, 10));
-
             ViewBag.WordSearch = seach;
             ViewBag.typeSearch = type;
 
@@ -114,31 +110,40 @@ namespace Ticket_LE.Controllers
         public ActionResult CreateTicket()
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
+
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/CreateTicketShow");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            //request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<TicketModels> items = JsonConvert.DeserializeObject<List<TicketModels>>(json);
+            var Ans = items.FirstOrDefault();
+
+            // ------------------------------------------------------------------------------------
             TicketModels valus = new TicketModels();
 
-            using (DB_LEDataContext Context = new DB_LEDataContext())
-            {
-                var sql = (from xx in Context.MAS_DOCs
-                           orderby xx.TYPE
-                           select xx);
+            List<CheckBox> list = new List<CheckBox>();
 
-                List<CheckBox> list = new List<CheckBox>();
+            ViewBag.Count = Ans.GetCheck.Count();
+            ViewBag.Check = ViewBag.Count / 2;
 
-                ViewBag.Count = sql.Count();
-                ViewBag.Check = ViewBag.Count / 2;
+            foreach (var item in Ans.GetCheck)
+            {                     
+                CheckBox ux = new CheckBox();
+                ux.ID = item.ID;
+                ux.Doc = item.Doc;
+                ux.Type = item.Type;
 
-                foreach (var item in sql)
-                {
-                    CheckBox ux = new CheckBox();
-                    ux.ID = item.DOC_ID;
-                    ux.Doc = item.DOC_NAME;
-                    ux.Type = item.TYPE;
-
-                    list.Add(ux);
-                }
-
-                valus.GetCheck = list;
+                list.Add(ux);
             }
+
+            valus.GetCheck = list;
+      
             return View(valus);
         }
 
@@ -149,46 +154,18 @@ namespace Ticket_LE.Controllers
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
-            string tketNo = ticketNo();
+            newItem.STCODE = userOnline;
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/CreateTicket");
 
-            using (DB_LEDataContext Context = new DB_LEDataContext())
-            {
-                TASK_MAIN Insert_Main = new TASK_MAIN();
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(newItem);
+            var response = restClient.Execute(request);
+            var json = response.Content;
 
-                Insert_Main.TICKETNO = tketNo;
-                Insert_Main.DETEIL = newItem.Add.Detail;
-                Insert_Main.WORKDATE = DateTime.Now;
-                Insert_Main.STCODE = userOnline;
-                Insert_Main.STATUS = "1";
-                Insert_Main.FLAG = "1";
-                Insert_Main.APPROVE_ID = 1;
-
-                Context.TASK_MAINs.InsertOnSubmit(Insert_Main);
-                Context.SubmitChanges();
-
-                var sql = (from xx in Context.TASK_MAINs
-                          where xx.TICKETNO == tketNo
-                          select xx).FirstOrDefault();
-
-                var doc = from xx in Context.MAS_DOCs
-                          select xx;
-                int i = 0;
-                foreach (var item in doc)
-                {
-                    TASK_SUB Insert_Sub = new TASK_SUB();
-
-                    if (newItem.GetCheck[i].Checked == true)
-                    {
-                        Insert_Sub.LE_ID = sql.ID;
-                        Insert_Sub.DOC_ID = newItem.GetCheck[i].ID;
-                        Insert_Sub.DETEIL_SUB = newItem.GetCheck[i].NAME;
-
-                        Context.TASK_SUBs.InsertOnSubmit(Insert_Sub);
-                        Context.SubmitChanges();
-                    }
-                    i++;
-                }
-            }
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<Detail> items = JsonConvert.DeserializeObject<List<Detail>>(json);
 
             return RedirectToAction("Index", "Ticket");
         }
@@ -197,83 +174,83 @@ namespace Ticket_LE.Controllers
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
+            Tic.STCODE = userOnline;
+            Tic.TicketId = TicketId;
+            Tic.Url = Url;
+
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/TicketDetail");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(Tic);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<TicketModels> items = JsonConvert.DeserializeObject<List<TicketModels>>(json);
+            var Ans = items.FirstOrDefault();
+
+            // ------------------------------------------------------------------------------------
+
             TicketModels valus = new TicketModels();
 
-            Data_UserDataContext Con = new Data_UserDataContext();
+            ViewBag.DP = Ans.DP;
+            ViewBag.A_ID = Ans.A_ID;
+            ViewBag.Back = Ans.Back;
 
-            var User = (from xx in Con.MAS_USERs
-                        where xx.STCODE == userOnline
-                        select xx).FirstOrDefault();
+            List<CheckBox> lstSub = new List<CheckBox>();
 
-            ViewBag.DP = User.D_ID;
-            ViewBag.A_ID = User.A_ID;
-            ViewBag.Back = Url;
-
-            using (DB_LEDataContext Context = new DB_LEDataContext())
+            int row = 1;
+            foreach (var item in Ans.Detail)
             {
-                var Main = (from xx in Context.VW_TICKETs
-                            where xx.ID == TicketId
-                           select xx).FirstOrDefault();
+                CheckBox ux = new CheckBox();
 
-                var Sub = (from xx in Context.TASK_SUBs
-                           join yy in Context.MAS_DOCs on xx.DOC_ID equals yy.DOC_ID
-                           where xx.LE_ID == TicketId
-                           orderby xx.DETEIL_SUB
-                           select new { xx, yy});
+                ux.row = row;
+                ux.Doc = item.Doc;
+                ux.NAME = item.NAME;
+                ux.Type = item.Type;
 
-                List<CheckBox> lstSub = new List<CheckBox>();
-
-                int row = 1;
-                foreach (var item in Sub)
-                {
-                    CheckBox ux = new CheckBox();
-
-                    ux.row = row;
-                    ux.Doc = item.yy.DOC_NAME;
-                    ux.NAME = item.xx.DETEIL_SUB;
-                    ux.Type = item.yy.TYPE;
-
-                    lstSub.Add(ux);
-                    row++;
-                }
-
-                valus.Detail = lstSub;
-
-                Ticket lis = new Ticket();
-
-                lis.TICKETNO = Main.TICKETNO;
-                lis.DETAIL = Main.DETEIL;
-                lis.CREATEDATE = DateTime.Parse(Main.WORKDATE.ToString()).ToShortDateString();
-                lis.CREATETIME = DateTime.Parse(Main.WORKDATE.ToString()).ToLongTimeString();
-                lis.CRE_NICKNAME = Main.NICKNAME;
-                lis.DEP = Main.DPCODE;
-                lis.SSID = Int32.Parse(Main.STATUS);
-                lis.SSNAME = Main.SS_NAME;
-                lis.NAME_OPEN = Main.FNAME + " " + Main.LNAME;
-                lis.DATE_OPEN = DateTime.Parse(Main.WORKDATE.ToString()).ToShortDateString();
-                lis.NAME_HDEP = Main.HDEP_NAME;
-
-                if (Main.HDEP_DATE != null)
-                {
-                    lis.DATE_HDEP = DateTime.Parse(Main.HDEP_DATE.ToString()).ToShortDateString();
-                }
-
-                lis.NAME_RECEIVE = Main.RECEIVE_NAME;
-                if (Main.RECEIVE_DATE != null)
-                {
-                    lis.DATE_RECEIVE = DateTime.Parse(Main.RECEIVE_DATE.ToString()).ToShortDateString();
-                }
-
-                lis.NAME_CLOSE = Main.CLOSE_NAME;
-                if (Main.CLOSE_DATE != null)
-                {
-                    lis.DATE_CLOSE = DateTime.Parse(Main.CLOSE_DATE.ToString()).ToShortDateString();
-                }
-
-                lis.APP_ID = Main.APPROVE_ID;
-                valus.TicketSub = lis;
-
+                lstSub.Add(ux);
+                row++;
             }
+
+            valus.Detail = lstSub;
+
+            Ticket lis = new Ticket();
+
+            lis.TICKETNO = Ans.TicketSub.TICKETNO;
+            lis.DETAIL = Ans.TicketSub.DETAIL;
+            lis.CREATEDATE = DateTime.Parse(Ans.TicketSub.CREATEDATE.ToString()).ToShortDateString();
+            lis.CREATETIME = DateTime.Parse(Ans.TicketSub.CREATETIME.ToString()).ToLongTimeString();
+            lis.CRE_NICKNAME = Ans.TicketSub.CRE_NICKNAME;
+            lis.DEP = Ans.TicketSub.DEP;
+            lis.SSID = Ans.TicketSub.SSID;
+            lis.SSNAME = Ans.TicketSub.SSNAME;
+            lis.NAME_OPEN = Ans.TicketSub.NAME_OPEN;
+            lis.DATE_OPEN = DateTime.Parse(Ans.TicketSub.DATE_OPEN.ToString()).ToShortDateString();
+            lis.NAME_HDEP = Ans.TicketSub.NAME_HDEP;
+
+            if (Ans.TicketSub.DATE_HDEP != null)
+            {
+                lis.DATE_HDEP = DateTime.Parse(Ans.TicketSub.DATE_HDEP.ToString()).ToShortDateString();
+            }
+
+            lis.NAME_RECEIVE = Ans.TicketSub.NAME_RECEIVE;
+            if (Ans.TicketSub.DATE_RECEIVE != null)
+            {
+                lis.DATE_RECEIVE = DateTime.Parse(Ans.TicketSub.DATE_RECEIVE.ToString()).ToShortDateString();
+            }
+
+            lis.NAME_CLOSE = Ans.TicketSub.NAME_CLOSE;
+            if (Ans.TicketSub.DATE_CLOSE != null)
+            {
+                lis.DATE_CLOSE = DateTime.Parse(Ans.TicketSub.DATE_CLOSE.ToString()).ToShortDateString();
+            }
+
+            lis.APP_ID = Ans.TicketSub.APP_ID;
+            valus.TicketSub = lis;
+
 
             ViewBag.TicNo = TicketId;
 
@@ -285,17 +262,23 @@ namespace Ticket_LE.Controllers
         {
             try
             {
-                using (DB_LEDataContext Context = new DB_LEDataContext())
-                {
-                    //var sql_Main = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
-                    //var sql_Sub = Context.TASK_SUBs.Where(s => s.LE_ID == Id);
-                    //Context.TASK_MAINs.DeleteOnSubmit(sql_Main);
-                    //Context.TASK_SUBs.DeleteAllOnSubmit(sql_Sub);
-                    //Context.SubmitChanges();
-                    var sql_Main = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
-                    sql_Main.FLAG = "0";
-                    Context.SubmitChanges();
-                }
+                Detail cc = new Detail();
+                cc.STCODE = userOnline;
+                cc.Ticket_ID = Id;
+
+                //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+                var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/TicketDelete");
+
+                var request = new RestRequest(Method.POST);
+                request.RequestFormat = DataFormat.Json;
+                request.AddJsonBody(cc);
+                var response = restClient.Execute(request);
+                var json = response.Content;
+
+                JsonDeserializer deserial = new JsonDeserializer();
+                List<Detail> items = JsonConvert.DeserializeObject<List<Detail>>(json);
+
+                // ------------------------------------------------------------------------------------
             }
 
             catch
@@ -312,23 +295,23 @@ namespace Ticket_LE.Controllers
             {
                 if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
-                Data_UserDataContext Con = new Data_UserDataContext();
-                var User = (from xx in Con.MAS_USERs
-                            join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
-                            where xx.STCODE == userOnline
-                            select new { xx, yy }).FirstOrDefault();
+                Detail cc = new Detail();
+                cc.STCODE = userOnline;
+                cc.Ticket_ID = Id;
 
-                using (DB_LEDataContext Context = new DB_LEDataContext())
-                {
-                    var sql_Main = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
+                //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+                var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/TicketReceive");
 
-                    sql_Main.STATUS = "2";
-                    sql_Main.RECEIVE_NAME = User.xx.FNAME + " " + User.xx.LNAME;
-                    sql_Main.RECEIVE_DATE = DateTime.Now;
-                    sql_Main.APPROVE_ID = 3;
+                var request = new RestRequest(Method.POST);
+                request.RequestFormat = DataFormat.Json;
+                request.AddJsonBody(cc);
+                var response = restClient.Execute(request);
+                var json = response.Content;
 
-                    Context.SubmitChanges();
-                }
+                JsonDeserializer deserial = new JsonDeserializer();
+                List<Detail> items = JsonConvert.DeserializeObject<List<Detail>>(json);
+
+                // ------------------------------------------------------------------------------------
             }
             catch   
             {
@@ -342,53 +325,54 @@ namespace Ticket_LE.Controllers
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
-            IQueryable<VW_TICKET> View_Ticket;
-            //OnUser usr = new OnUser();
-            //usr = getUser(userOnline);
-            seach = seach.Trim();
-            //NName = NName.Trim();
-            type = type.Trim();
-            //TicketModels TicketList = new TicketModels();
+            Detail cc = new Detail();
+            cc.STCODE = userOnline;
+            //cc.Ticket_ID = Id;
+            cc.seach = seach;
+            cc.type = type;
 
-            Data_UserDataContext Con = new Data_UserDataContext();
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/ApproveTicket");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<TicketModels> items = JsonConvert.DeserializeObject<List<TicketModels>>(json);
+            var Ans = items.FirstOrDefault();
+
+            // ------------------------------------------------------------------------------------
             DB_LEDataContext db = new DB_LEDataContext();
-
-            ViewBag.Type = new SelectList(db.MAS_SSes, "SS_ID", "SS_NAME");
-
-            var User = (from xx in Con.MAS_USERs
-                        join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
-                        where xx.STCODE == userOnline
-                        select new { xx, yy }).FirstOrDefault();
-
-            ViewBag.DP = User.xx.D_ID;
+            ViewBag.Type = new SelectList(db.MAS_SSes, "SS_ID", "SS_NAME"); ;
+            ViewBag.DP = Ans.DP;
 
             List<Ticket> lstTicket = new List<Ticket>();
 
-            using (DB_LEDataContext Context = new DB_LEDataContext())
+            if (Ans.TicketDetail != null)
             {
-                View_Ticket = Context.VW_TICKETs.Where(s => s.TICKETNO.Contains(seach) || s.DPCODE.Contains(seach) || s.NICKNAME.Contains(seach)).Where(s => s.STATUS == "1").Where(s => s.FLAG == "1").Where(s => s.APPROVE_ID == 1).Where(s => s.DPCODE == User.yy.DPCODE).OrderBy(s => s.STATUS);
+                foreach (var item in Ans.TicketDetail)
+                {
+                    Ticket ux = new Ticket();
 
+                    ux.ID = item.ID;
+                    ux.TICKETNO = item.TICKETNO;
+                    ux.DETAIL = item.DETAIL;
+                    ux.CREATEDATE = DateTime.Parse(item.CREATEDATE.ToString()).ToShortDateString();
+                    ux.CREATETIME = DateTime.Parse(item.CREATETIME.ToString()).ToLongTimeString();
+                    ux.CRE_NICKNAME = item.CRE_NICKNAME;
+                    ux.DEP = item.DEP;
+                    ux.SSID = item.SSID;
+                    ux.SSNAME = item.SSNAME;
 
-                    foreach (var item in View_Ticket)
-                    {
-                        Ticket ux = new Ticket();
-
-                        ux.ID = item.ID;
-                        ux.TICKETNO = item.TICKETNO;
-                        ux.DETAIL = item.DETEIL;
-                        ux.CREATEDATE = DateTime.Parse(item.WORKDATE.ToString()).ToShortDateString();
-                        ux.CREATETIME = DateTime.Parse(item.WORKDATE.ToString()).ToLongTimeString();
-                        ux.CRE_NICKNAME = item.NICKNAME;
-                        ux.DEP = item.DPCODE;
-                        ux.SSID = Int32.Parse(item.STATUS);
-                        ux.SSNAME = item.SS_NAME;
-
-                        lstTicket.Add(ux);
-                    }           
-            }
-
-            ViewBag.WordSearch = seach;
-            ViewBag.typeSearch = type;
+                    lstTicket.Add(ux);
+                }
+            } 
+ 
+            ViewBag.WordSearch = Ans.WordSearch;
+            ViewBag.typeSearch = Ans.typeSearch;
 
             return View(lstTicket.ToPagedList(page, 10));
         }
@@ -397,102 +381,137 @@ namespace Ticket_LE.Controllers
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
-            Data_UserDataContext Con = new Data_UserDataContext();
-            var User = (from xx in Con.MAS_USERs
-                            join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
-                            where xx.STCODE == userOnline
-                            select new { xx, yy }).FirstOrDefault();
+            Detail cc = new Detail();
+            cc.STCODE = userOnline;
+            cc.Ticket_ID = Id;
 
-            using (DB_LEDataContext Context = new DB_LEDataContext())
-            {
-                var insert_Approve = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/Approve");
 
-                insert_Approve.HDEP_NAME = User.xx.FNAME + " " + User.xx.LNAME;
-                insert_Approve.HDEP_DATE = DateTime.Now;
-                insert_Approve.APPROVE_ID = 2;
-                Context.SubmitChanges();
-            }
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
 
-                return RedirectToAction("TicketDetail", "Ticket", new { TicketId = Id });
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<Detail> items = JsonConvert.DeserializeObject<List<Detail>>(json);
+
+            // ------------------------------------------------------------------------------------
+            //Data_UserDataContext Con = new Data_UserDataContext();
+            //var User = (from xx in Con.MAS_USERs
+            //                join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
+            //                where xx.STCODE == userOnline
+            //                select new { xx, yy }).FirstOrDefault();
+
+            //using (DB_LEDataContext Context = new DB_LEDataContext())
+            //{
+            //    var insert_Approve = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
+
+            //    insert_Approve.HDEP_NAME = User.xx.FNAME + " " + User.xx.LNAME;
+            //    insert_Approve.HDEP_DATE = DateTime.Now;
+            //    insert_Approve.APPROVE_ID = 2;
+            //    Context.SubmitChanges();
+            //}
+
+            return RedirectToAction("TicketDetail", "Ticket", new { TicketId = Id });
         }
 
         public ActionResult TicketClose(int Id)
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
-            Data_UserDataContext Con = new Data_UserDataContext();
-            var User = (from xx in Con.MAS_USERs
-                        join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
-                        where xx.STCODE == userOnline
-                        select new { xx, yy }).FirstOrDefault();
+            Detail cc = new Detail();
+            cc.STCODE = userOnline;
+            cc.Ticket_ID = Id;
 
-            using (DB_LEDataContext Context = new DB_LEDataContext())
-            {
-                var insert_Close = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/TicketClose");
 
-                insert_Close.CLOSE_NAME = User.xx.FNAME + " " + User.xx.LNAME;
-                insert_Close.CLOSE_DATE = DateTime.Now;
-                insert_Close.APPROVE_ID = 4;
-                insert_Close.STATUS = "3";
-                Context.SubmitChanges();
-            }
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<Detail> items = JsonConvert.DeserializeObject<List<Detail>>(json);
+
+            // ------------------------------------------------------------------------------------
+
+            //Data_UserDataContext Con = new Data_UserDataContext();
+            //var User = (from xx in Con.MAS_USERs
+            //            join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
+            //            where xx.STCODE == userOnline
+            //            select new { xx, yy }).FirstOrDefault();
+
+            //using (DB_LEDataContext Context = new DB_LEDataContext())
+            //{
+            //    var insert_Close = Context.TASK_MAINs.Where(s => s.ID == Id).FirstOrDefault();
+
+            //    insert_Close.CLOSE_NAME = User.xx.FNAME + " " + User.xx.LNAME;
+            //    insert_Close.CLOSE_DATE = DateTime.Now;
+            //    insert_Close.APPROVE_ID = 4;
+            //    insert_Close.STATUS = "3";
+            //    Context.SubmitChanges();
+            //}
 
             return RedirectToAction("TicketDetail", "Ticket", new { TicketId = Id });
         }
 
-        private string ticketNo()
-        {
-            string runNo = "LE"; //IT17000009
-            string strRun = "";
-            string yy = DateTime.Now.Year.ToString();
-            string mm = DateTime.Now.Month.ToString();
-            int intRun = 1;
+        //private string ticketNo()
+        //{
+        //    string runNo = "LE"; //IT17000009
+        //    string strRun = "";
+        //    string yy = DateTime.Now.Year.ToString();
+        //    string mm = DateTime.Now.Month.ToString();
+        //    int intRun = 1;
 
 
-            yy = yy.Substring(yy.Length - 2, 2);
-            if (mm.Length == 1) { mm = "0" + mm; }
+        //    yy = yy.Substring(yy.Length - 2, 2);
+        //    if (mm.Length == 1) { mm = "0" + mm; }
 
-            runNo = runNo + yy + mm;
+        //    runNo = runNo + yy + mm;
 
-            using (DB_LEDataContext Context = new DB_LEDataContext())
-            {
-                try
-                {
-                    var queryX = Context.TASK_MAINs.OrderByDescending(s => s.TICKETNO)
-                    .Where(s => s.TICKETNO.Contains(runNo))
-                    .FirstOrDefault();
-                    strRun = queryX.TICKETNO;
-                }
-                catch
-                {
-                    strRun = "LE18010000";
-                }
+        //    using (DB_LEDataContext Context = new DB_LEDataContext())
+        //    {
+        //        try
+        //        {
+        //            var queryX = Context.TASK_MAINs.OrderByDescending(s => s.TICKETNO)
+        //            .Where(s => s.TICKETNO.Contains(runNo))
+        //            .FirstOrDefault();
+        //            strRun = queryX.TICKETNO;
+        //        }
+        //        catch
+        //        {
+        //            strRun = "LE18010000";
+        //        }
 
-            }
+        //    }
 
-            strRun = strRun.Substring(strRun.Length - 4, 4);
-            intRun = Int32.Parse(strRun);
-            intRun = intRun + 1;
+        //    strRun = strRun.Substring(strRun.Length - 4, 4);
+        //    intRun = Int32.Parse(strRun);
+        //    intRun = intRun + 1;
 
-            strRun = intRun.ToString();
+        //    strRun = intRun.ToString();
 
-            switch (strRun.Length)
-            {
-                case 1:
-                    strRun = "000" + strRun;
-                    break;
-                case 2:
-                    strRun = "00" + strRun;
-                    break;
-                case 3:
-                    strRun = "0" + strRun;
-                    break;
-            }
+        //    switch (strRun.Length)
+        //    {
+        //        case 1:
+        //            strRun = "000" + strRun;
+        //            break;
+        //        case 2:
+        //            strRun = "00" + strRun;
+        //            break;
+        //        case 3:
+        //            strRun = "0" + strRun;
+        //            break;
+        //    }
 
-            runNo = runNo + strRun;
+        //    runNo = runNo + strRun;
 
-            return runNo;
-        }
+        //    return runNo;
+        //}
 
         /*------------------------------------------------------------- Login ------------------------------------------------*/
 
@@ -553,7 +572,7 @@ namespace Ticket_LE.Controllers
             }
             catch
             {
-                HttpCookie BeautyCookies = new HttpCookie("bbStcode");
+                System.Web.HttpCookie BeautyCookies = new System.Web.HttpCookie("bbStcode");
                 BeautyCookies.Value = User;
                 BeautyCookies.Expires = DateTime.Now.AddDays(1);
 
@@ -582,86 +601,87 @@ namespace Ticket_LE.Controllers
             }
         }
 
+        //------------------------------------------------------------------------------------------------------------
+
         public ActionResult Print(TicketModels Tic, int TicketId)
         {
             if (!chkSesionUser()) { return RedirectToAction("Login", "Login", new { returnUrl = "~/Ticket/Index" }); }
 
+            Tic.STCODE = userOnline;
+            Tic.TicketId = TicketId;
+            //Tic.Url = Url;
+
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/Print");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(Tic);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<TicketModels> items = JsonConvert.DeserializeObject<List<TicketModels>>(json);
+            var Ans = items.FirstOrDefault();
+
+            // ------------------------------------------------------------------------------------
+
             TicketModels valus = new TicketModels();
 
-            Data_UserDataContext Con = new Data_UserDataContext();
+            ViewBag.DP = Ans.DP;
+            ViewBag.DPNAME = Ans.DPNAME;
+            ViewBag.FULLNAME = Ans.FULLNAME;
 
-            var User = (from xx in Con.MAS_USERs
-                        join yy in Con.MAS_DEPs on xx.D_ID equals yy.DP_ID
-                        where xx.STCODE == userOnline
-                        select new { xx, yy }).FirstOrDefault();
+            List<CheckBox> lstSub = new List<CheckBox>();
 
-            ViewBag.DP = User.xx.D_ID;
-            ViewBag.DPNAME = User.yy.DPCODE;
-            ViewBag.FULLNAME = User.xx.FNAME + " " + User.xx.LNAME;
-
-            using (DB_LEDataContext Context = new DB_LEDataContext())
+            int row = 1;
+            foreach (var item in Ans.Detail)
             {
-                var Main = (from xx in Context.VW_TICKETs
-                            where xx.ID == TicketId
-                            select xx).FirstOrDefault();
+                CheckBox ux = new CheckBox();
 
-                var Sub = (from xx in Context.TASK_SUBs
-                           join yy in Context.MAS_DOCs on xx.DOC_ID equals yy.DOC_ID
-                           where xx.LE_ID == TicketId
-                           orderby xx.DETEIL_SUB
-                           select new { xx, yy });
+                ux.row = row;
+                ux.Doc = item.Doc;
+                ux.NAME = item.NAME;
+                ux.Type = item.Type;
 
-                List<CheckBox> lstSub = new List<CheckBox>();
-
-                int row = 1;
-                foreach (var item in Sub)
-                {
-                    CheckBox ux = new CheckBox();
-
-                    ux.row = row;
-                    ux.Doc = item.yy.DOC_NAME;
-                    ux.NAME = item.xx.DETEIL_SUB;
-                    ux.Type = item.yy.TYPE;
-
-                    lstSub.Add(ux);
-                    row++;
-                }
-
-                valus.Detail = lstSub;
-
-                Ticket lis = new Ticket();
-
-                lis.TICKETNO = Main.TICKETNO;
-                lis.DETAIL = Main.DETEIL;
-                lis.CREATEDATE = DateTime.Parse(Main.WORKDATE.ToString()).ToShortDateString();
-                lis.CREATETIME = DateTime.Parse(Main.WORKDATE.ToString()).ToLongTimeString();
-                lis.CRE_NICKNAME = Main.NICKNAME;
-                lis.DEP = Main.DPCODE;
-                lis.SSID = Int32.Parse(Main.STATUS);
-                lis.SSNAME = Main.SS_NAME;
-                lis.NAME_OPEN = Main.FNAME + " " + Main.LNAME;
-                lis.DATE_OPEN = DateTime.Parse(Main.WORKDATE.ToString()).ToShortDateString();
-                lis.NAME_HDEP = Main.HDEP_NAME;
-
-                if (Main.HDEP_DATE != null)
-                {
-                    lis.DATE_HDEP = DateTime.Parse(Main.HDEP_DATE.ToString()).ToShortDateString();
-                }
-
-                lis.NAME_RECEIVE = Main.RECEIVE_NAME;
-                if (Main.RECEIVE_DATE != null)
-                {
-                    lis.DATE_RECEIVE = DateTime.Parse(Main.RECEIVE_DATE.ToString()).ToShortDateString();
-                }
-
-                lis.NAME_CLOSE = Main.CLOSE_NAME;
-                if (Main.CLOSE_DATE != null)
-                {
-                    lis.DATE_CLOSE = DateTime.Parse(Main.CLOSE_DATE.ToString()).ToShortDateString();
-                }
-
-                valus.TicketSub = lis;
+                lstSub.Add(ux);
+                row++;
             }
+
+            valus.Detail = lstSub;
+
+            Ticket lis = new Ticket();
+
+            lis.TICKETNO = Ans.TicketSub.TICKETNO;
+            lis.DETAIL = Ans.TicketSub.DETAIL;
+            lis.CREATEDATE = DateTime.Parse(Ans.TicketSub.CREATEDATE.ToString()).ToShortDateString();
+            lis.CREATETIME = DateTime.Parse(Ans.TicketSub.CREATETIME.ToString()).ToLongTimeString();
+            lis.CRE_NICKNAME = Ans.TicketSub.CRE_NICKNAME;
+            lis.DEP = Ans.TicketSub.DEP;
+            lis.SSID = Ans.TicketSub.SSID;
+            lis.SSNAME = Ans.TicketSub.SSNAME;
+            lis.NAME_OPEN = Ans.TicketSub.NAME_OPEN;
+            lis.DATE_OPEN = DateTime.Parse(Ans.TicketSub.DATE_OPEN.ToString()).ToShortDateString();
+            lis.NAME_HDEP = Ans.TicketSub.NAME_HDEP;
+
+            if (Ans.TicketSub.DATE_HDEP != null)
+            {
+                lis.DATE_HDEP = DateTime.Parse(Ans.TicketSub.DATE_HDEP.ToString()).ToShortDateString();
+            }
+
+            lis.NAME_RECEIVE = Ans.TicketSub.NAME_RECEIVE;
+            if (Ans.TicketSub.DATE_RECEIVE != null)
+            {
+                lis.DATE_RECEIVE = DateTime.Parse(Ans.TicketSub.DATE_RECEIVE.ToString()).ToShortDateString();
+            }
+
+            lis.NAME_CLOSE = Ans.TicketSub.NAME_CLOSE;
+            if (Ans.TicketSub.DATE_CLOSE != null)
+            {
+                lis.DATE_CLOSE = DateTime.Parse(Ans.TicketSub.DATE_CLOSE.ToString()).ToShortDateString();
+            }
+
+            valus.TicketSub = lis;
 
             ViewBag.TicNo = TicketId;
 
@@ -681,44 +701,49 @@ namespace Ticket_LE.Controllers
 
         public ActionResult Manage_Partial(int page = 1, string sh = "")
         {
-            UserViewModels Model = new UserViewModels();
+            Detail cc = new Detail();
+            cc.STCODE = userOnline;
+            cc.sh = sh;
+            //cc.Ticket_ID = Id;
 
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/Manage_Partial");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<ListUserLogin> items = JsonConvert.DeserializeObject<List<ListUserLogin>>(json);
+            var Ans = items.FirstOrDefault();
+
+            // ------------------------------------------------------------------------------------
             Data_UserDataContext DropD = new Data_UserDataContext();
             var dep = (from xx in DropD.MAS_USER_As
                        orderby xx.US_ID
                        select xx).GroupBy(x => x.ANAME).Select(grp => grp.First());
             ViewBag.Dep = new SelectList(dep, "US_ID", "ANAME");
 
-            sh = sh.Trim();
-
             List<USER_LOGIN> list = new List<USER_LOGIN>();
 
-            using (Data_UserDataContext Context = new Data_UserDataContext())
+            if (Ans.Userloginid != null)
             {
-                IQueryable<VW_USER_FOR_LE> DataUser;
-                DataUser = Context.VW_USER_FOR_LEs;
-
-                if (sh.Length > 0)
-                {
-                    DataUser = DataUser.Where(x => x.STCODE.Contains(sh) || x.NAME.Contains(sh) || x.DPCODE.Contains(sh));
-                }
-
-                foreach (var dx in DataUser)
+                foreach (var dx in Ans.Userloginid)
                 {
                     USER_LOGIN ux = new USER_LOGIN();
 
-                    ux.ID = dx.US_ID;
+                    ux.ID = dx.ID;
                     ux.STCODE = dx.STCODE;
-                    ux.FULLNAME = dx.NAME; 
-                    ux.DEP = dx.DPCODE;
-                    ux.A_NAME = dx.ANAME;
+                    ux.FULLNAME = dx.FULLNAME;
+                    ux.DEP = dx.DEP;
+                    ux.A_NAME = dx.A_NAME;
 
                     list.Add(ux);
                     //PhoneModels.RowPhone.Add(ipn);
                 }
-                //Model.RowUser = list;
             }
-
             ViewBag.sh = sh;
 
             return PartialView(list.ToPagedList(page, 20));
@@ -726,16 +751,36 @@ namespace Ticket_LE.Controllers
 
         public ActionResult Edit(int Id,string STCODE, string Dep)
         {
-            using (Data_UserDataContext Context = new Data_UserDataContext())
-            {
-                var sql = (from xx in Context.MAS_USERs
-                          where xx.US_ID == Id
-                          select xx).FirstOrDefault();
+            Detail cc = new Detail();
+            cc.Dep = Dep;
+            cc.Ticket_ID = Id;
 
-                sql.A_ID = byte.Parse(Dep);
-                Context.SubmitChanges();
-            }
-                return RedirectToAction("Manage", "Ticket", new { sh = STCODE });
+            //cc.Ticket_ID = Id;
+
+            //var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_OP/api/TicketOP/Ticketlist");
+            var restClient = new RestClient("http://5cosmeda.homeunix.com:89/Ticket_LE/api/TicketLE/Edit");
+
+            var request = new RestRequest(Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddJsonBody(cc);
+            var response = restClient.Execute(request);
+            var json = response.Content;
+
+            JsonDeserializer deserial = new JsonDeserializer();
+            List<ListUserLogin> items = JsonConvert.DeserializeObject<List<ListUserLogin>>(json);
+            var Ans = items.FirstOrDefault();
+
+            // ------------------------------------------------------------------------------------
+            //using (Data_UserDataContext Context = new Data_UserDataContext())
+            //{
+            //    var sql = (from xx in Context.MAS_USERs
+            //              where xx.US_ID == Id
+            //              select xx).FirstOrDefault();
+
+            //    sql.A_ID = byte.Parse(Dep);
+            //    Context.SubmitChanges();
+            //}
+            return RedirectToAction("Manage", "Ticket", new { sh = STCODE });
         }
     }
 }
